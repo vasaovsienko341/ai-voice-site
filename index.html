@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Anime AI Voice Studio</title>
+<title>Anime AI Voice Studio PRO</title>
 
 <style>
 body {
@@ -17,16 +17,15 @@ body {
     height: 100vh;
 }
 
-/* затемнение */
 .overlay {
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0,0,0,0.65);
     backdrop-filter: blur(6px);
     padding: 30px;
     border-radius: 20px;
     text-align: center;
     color: white;
-    width: 500px;
-    box-shadow: 0 0 30px #ff00cc;
+    width: 520px;
+    box-shadow: 0 0 35px #ff00cc;
 }
 
 h1 {
@@ -44,8 +43,8 @@ textarea {
     font-size: 16px;
 }
 
-select, button {
-    padding: 10px 15px;
+select, button, input {
+    padding: 10px;
     border-radius: 15px;
     border: none;
     margin: 8px;
@@ -62,27 +61,28 @@ button {
 button:hover {
     transform: scale(1.1);
 }
+
+label {
+    font-size: 13px;
+}
 </style>
 </head>
 <body>
 
 <div class="overlay">
-<h1>🎙 Anime AI Voice Studio</h1>
+<h1>🎙 Anime AI Voice Studio PRO</h1>
 
 <textarea id="text" placeholder="Введіть текст тут..."></textarea><br>
 
-<select id="language">
-    <option value="uk-UA">🇺🇦 Українська</option>
-    <option value="en-US">🇬🇧 English</option>
-</select>
+<select id="language"></select>
+<select id="voiceSelect"></select><br>
 
-<select id="voiceType">
-    <option value="female">👩 Жіночий</option>
-    <option value="male">👨 Чоловічий</option>
-</select><br>
+<label>🔊 Швидкість:</label>
+<input type="range" id="rate" min="0.5" max="2" step="0.1" value="1"><br>
 
 <button onclick="speakText()">✨ Озвучити</button>
-<button onclick="stopText()">⛔ Зупинити</button>
+<button onclick="stopText()">⛔ Стоп</button>
+<button onclick="downloadAudio()">💾 Скачать WAV</button>
 
 <p style="margin-top:15px; font-size:12px; opacity:0.7;">
 Anime AI Voice © 2026
@@ -91,24 +91,89 @@ Anime AI Voice © 2026
 
 <script>
 let synth = window.speechSynthesis;
+let voices = [];
+
+function loadVoices() {
+    voices = synth.getVoices();
+
+    let languageSelect = document.getElementById("language");
+    let voiceSelect = document.getElementById("voiceSelect");
+
+    languageSelect.innerHTML = "";
+    voiceSelect.innerHTML = "";
+
+    let languages = [...new Set(voices.map(v => v.lang))];
+
+    languages.forEach(lang => {
+        let option = document.createElement("option");
+        option.value = lang;
+        option.textContent = lang;
+        languageSelect.appendChild(option);
+    });
+
+    updateVoiceList();
+}
+
+function updateVoiceList() {
+    let selectedLang = document.getElementById("language").value;
+    let voiceSelect = document.getElementById("voiceSelect");
+    voiceSelect.innerHTML = "";
+
+    voices.filter(v => v.lang === selectedLang)
+        .forEach(v => {
+            let option = document.createElement("option");
+            option.value = voices.indexOf(v);
+            option.textContent = v.name;
+            voiceSelect.appendChild(option);
+        });
+}
+
+document.getElementById("language").addEventListener("change", updateVoiceList);
+
+synth.onvoiceschanged = loadVoices;
 
 function speakText() {
     let text = document.getElementById("text").value;
-    let language = document.getElementById("language").value;
-
-    if (!text) {
-        alert("Введіть текст!");
-        return;
-    }
+    if (!text) return alert("Введіть текст!");
 
     let utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = language;
+    let voiceIndex = document.getElementById("voiceSelect").value;
+    let rate = document.getElementById("rate").value;
+
+    utterance.voice = voices[voiceIndex];
+    utterance.rate = rate;
 
     synth.speak(utterance);
 }
 
 function stopText() {
     synth.cancel();
+}
+
+/* Запись через MediaRecorder */
+function downloadAudio() {
+    alert("⚠ Для записи включите микрофон (браузер запросит разрешение)");
+
+    navigator.mediaDevices.getUserMedia({audio:true}).then(stream => {
+        let recorder = new MediaRecorder(stream);
+        let chunks = [];
+
+        recorder.ondataavailable = e => chunks.push(e.data);
+
+        recorder.onstop = e => {
+            let blob = new Blob(chunks, { type: 'audio/wav' });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement("a");
+            a.href = url;
+            a.download = "anime_voice.wav";
+            a.click();
+        };
+
+        recorder.start();
+        speakText();
+
+        setTimeout(() => recorder.stop(), 5000);
+    });
 }
 </script>
 
