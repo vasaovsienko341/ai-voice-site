@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anime AI Voice Studio</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: url("background.png") no-repeat center center fixed;
+    background-size: cover;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+/* затемнение */
+.overlay {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(6px);
+    padding: 30px;
+    border-radius: 20px;
+    text-align: center;
+    color: white;
+    width: 500px;
+    box-shadow: 0 0 30px #ff00cc;
+}
+
+h1 {
+    color: #ff66ff;
+    text-shadow: 0 0 15px #ff00cc;
+}
+
+textarea {
+    width: 90%;
+    height: 120px;
+    border-radius: 12px;
+    border: none;
+    padding: 10px;
+    margin: 15px 0;
+    font-size: 16px;
+}
+
+select, button {
+    padding: 10px 15px;
+    border-radius: 15px;
+    border: none;
+    margin: 8px;
+    font-size: 14px;
+}
+
+button {
+    background: linear-gradient(45deg, #ff00cc, #3333ff);
+    color: white;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: scale(1.1);
+}
+</style>
+</head>
+<body>
+
+<div class="overlay">
+<h1>🎙 Anime AI Voice Studio</h1>
+
+<textarea id="text" placeholder="Введіть текст тут..."></textarea><br>
+
+<select id="language">
+    <option value="uk-UA">🇺🇦 Українська</option>
+    <option value="en-US">🇬🇧 English</option>
+</select>
+
+<select id="voiceType">
+    <option value="female">👩 Жіночий</option>
+    <option value="male">👨 Чоловічий</option>
+</select><br>
+
+<button onclick="speakText()">✨ Озвучити</button>
+<button onclick="stopText()">⛔ Зупинити</button>
+
+<p style="margin-top:15px; font-size:12px; opacity:0.7;">
+Anime AI Voice © 2026
+</p>
+</div>
+
+<script>
+let synth = window.speechSynthesis;
+
+function speakText() {
+    let text = document.getElementById("text").value;
+    let language = document.getElementById("language").value;
+
+    if (!text) {
+        alert("Введіть текст!");
+        return;
+    }
+
+    let utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = language;
+
+    synth.speak(utterance);
+}
+
+function stopText() {
+    synth.cancel();
+}
+</script>
+
+</body>
+</html>
