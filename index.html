@@ -70,19 +70,23 @@ label {
 <body>
 
 <div class="overlay">
-<h1>🎙 Anime AI Voice Studio PRO</h1>
+<h1>🎙 Аніме AI Озвучка PRO</h1>
 
 <textarea id="text" placeholder="Введіть текст тут..."></textarea><br>
 
-<select id="language"></select>
+<select id="language">
+    <option value="uk-UA">🇺🇦 Українська</option>
+    <option value="en-US">🇬🇧 English</option>
+</select>
+
 <select id="voiceSelect"></select><br>
 
-<label>🔊 Швидкість:</label>
+<label>🔊 Швидкість мовлення:</label>
 <input type="range" id="rate" min="0.5" max="2" step="0.1" value="1"><br>
 
 <button onclick="speakText()">✨ Озвучити</button>
-<button onclick="stopText()">⛔ Стоп</button>
-<button onclick="downloadAudio()">💾 Скачать WAV</button>
+<button onclick="stopText()">⛔ Зупинити</button>
+<button onclick="downloadAudio()">💾 Завантажити WAV</button>
 
 <p style="margin-top:15px; font-size:12px; opacity:0.7;">
 Anime AI Voice © 2026
@@ -95,22 +99,6 @@ let voices = [];
 
 function loadVoices() {
     voices = synth.getVoices();
-
-    let languageSelect = document.getElementById("language");
-    let voiceSelect = document.getElementById("voiceSelect");
-
-    languageSelect.innerHTML = "";
-    voiceSelect.innerHTML = "";
-
-    let languages = [...new Set(voices.map(v => v.lang))];
-
-    languages.forEach(lang => {
-        let option = document.createElement("option");
-        option.value = lang;
-        option.textContent = lang;
-        languageSelect.appendChild(option);
-    });
-
     updateVoiceList();
 }
 
@@ -134,7 +122,7 @@ synth.onvoiceschanged = loadVoices;
 
 function speakText() {
     let text = document.getElementById("text").value;
-    if (!text) return alert("Введіть текст!");
+    if (!text) return alert("Будь ласка, введіть текст!");
 
     let utterance = new SpeechSynthesisUtterance(text);
     let voiceIndex = document.getElementById("voiceSelect").value;
@@ -150,9 +138,8 @@ function stopText() {
     synth.cancel();
 }
 
-/* Запись через MediaRecorder */
 function downloadAudio() {
-    alert("⚠ Для записи включите микрофон (браузер запросит разрешение)");
+    alert("⚠ Для запису браузер попросить дозвіл на мікрофон.");
 
     navigator.mediaDevices.getUserMedia({audio:true}).then(stream => {
         let recorder = new MediaRecorder(stream);
